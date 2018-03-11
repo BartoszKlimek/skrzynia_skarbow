@@ -11,87 +11,57 @@ namespace SimpleServer
     class Program
     {
         static void Main(string[] args)
+
         {
+
             SimpleServer server = new SimpleServer("127.0.0.1", 11000);
-            Console.WriteLine("dupa");
-        }
-    }
-    class SimpleServer
-    {
-        private string IP;
-        private int port;
-
-        public SimpleServer(string IP, int port)
-        {
-            this.IP = IP;
-            this.port = port;
+              Socket serwer = server.stworzsocket();            
+            SimpleClient client = new SimpleClient(serwer);
+            client.stworzklienta();
+            Console.ReadKey();
 
         }
-
-        public void stworzsocket()
+        class SimpleServer
         {
-            // numer IP, na ktorym ma nasluchiwac serwer
-            IPAddress ipAddress = IPAddress.Parse(IP);
-            // numer portu, na ktorym ma nasluchiwac serwer          
+            private string IP;
+            private int port;
 
-            IPEndPoint ipEndpoint = new IPEndPoint(ipAddress, port);
-
-            Console.WriteLine("===== SERVER v.0.1 =====");
-            Console.WriteLine("Serwer @ {0}", ipEndpoint);
-
-            // stworzenie gniazda - tu sie podaje tylko rodzaj gniazda
-            Socket listening = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
-
-            // przypisanie mu numeru IP i portu
-            listening.Bind(ipEndpoint);
-
-            // otwarcie w trybie nasluchiwania, 
-            listening.Listen(1); // arg. informuje ile nieobsluzonych klientow moze oczekiwac
-            do
+            public SimpleServer(string IP, int port)
             {
-                Console.WriteLine("Oczekuje na polaczenie...");
+                this.IP = IP;
+                this.port = port;
 
-                Socket client = listening.Accept(); // operacja blokuąca!!
+            }
 
-                Console.WriteLine("Podlaczyl sie klient @ {0}", client.RemoteEndPoint);
-                Console.WriteLine("Czekam na dane od klienta...");
+            public Socket stworzsocket()
+            {
+                // numer IP, na ktorym ma nasluchiwac serwer
+                IPAddress ipAddress = IPAddress.Parse(IP);
+                // numer portu, na ktorym ma nasluchiwac serwer          
 
-                NetworkStream stream = new NetworkStream(client);
-                StreamReader sr = new StreamReader(stream);
-                StreamWriter sw = new StreamWriter(stream);
-                string dataReceived;
-                do
-                {
+                IPEndPoint ipEndpoint = new IPEndPoint(ipAddress, port);
 
-                    dataReceived = string.Concat("otrzymano: ", sr.ReadLine());
+                Console.WriteLine("===== SERVER v.0.1 =====");
+                Console.WriteLine("Serwer @ {0}", ipEndpoint);
 
-                    Console.WriteLine("Otrzymano: {0}", dataReceived);
+                // stworzenie gniazda - tu sie podaje tylko rodzaj gniazda
+                Socket listening = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
 
-                    string dataToSend = string.Format("OK. Dostalem [{0}]. Pa!", dataReceived);
+                // przypisanie mu numeru IP i portu
+                listening.Bind(ipEndpoint);
 
-                    dataToSend = Console.ReadLine();
-                    Console.WriteLine("Wysylam: {0}", dataToSend);
+                // otwarcie w trybie nasluchiwania, 
+                listening.Listen(1); // arg. informuje ile nieobsluzonych klientow moze oczekiwac
+                                     
+                 Console.WriteLine("Oczekuje na polaczenie...");         
 
-                    sw.WriteLine(dataToSend);
-                    sw.Flush();
+                
+                    return listening;
 
 
-                }
-                while (dataReceived != "QUIT");
-
-                Console.WriteLine("Zamykam polaczenia...");
-                // zamykanie polaczenia
-                sw.Close();
-                sr.Close();
-                client.Close();
-                break;
 
 
             }
-            while (true);
-            listening.Close();
-
-            Console.ReadKey();
 
 
 
@@ -99,14 +69,60 @@ namespace SimpleServer
 
 
         }
+        class SimpleClient
+        {
+            private Socket serwer;
+
+            public SimpleClient(Socket serwer)
+            {
+                this.serwer = serwer;
+            }
+
+            public void stworzklienta()
+            {
 
 
 
+                Socket client = serwer.Accept();
+                do
+                {
+                                       
 
+                    Console.WriteLine("Podlaczyl sie klient @ {0}", client.RemoteEndPoint);
+                    Console.WriteLine("Czekam na dane od klienta...");
+                    NetworkStream stream = new NetworkStream(client);
+                    StreamReader sr = new StreamReader(stream);
+                    StreamWriter sw = new StreamWriter(stream);
+                    string dataReceived;
+                    do
+                    {
+
+
+                        Console.WriteLine(dataReceived = string.Concat("otrzymano: ",sr.ReadLine()));                       
+
+                        string dataToSend = Console.ReadLine();                     
+
+                        sw.WriteLine(dataToSend);
+                        sw.Flush();
+
+
+                    }
+                    while (dataReceived != "QUIT");
+
+                    Console.WriteLine("Zamykam polaczenia...");
+                    // zamykanie polaczenia
+                    sw.Close();
+                    sr.Close();
+                    client.Close();                  
+
+                }
+                while (true);
+                serwer.Close();
+            }
+
+
+        }
 
 
     }
-
-
-
 }
