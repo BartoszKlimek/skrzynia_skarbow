@@ -17,14 +17,17 @@ namespace SimpleServer
             SimpleServer server = new SimpleServer("127.0.0.1", 11000);
               Socket serwer = server.stworzsocket();            
             SimpleClient client = new SimpleClient(serwer);
-            client.stworzklienta();
-            Console.ReadKey();
+            Socket cl= client.stworzklienta();
+            server.zamknijserwer(cl, serwer);
+          
 
         }
         class SimpleServer
         {
             private string IP;
-            private int port;
+            private int port;        
+
+           
 
             public SimpleServer(string IP, int port)
             {
@@ -62,7 +65,13 @@ namespace SimpleServer
 
 
             }
-
+            public void zamknijserwer(Socket klient, Socket serwer)
+            {
+                Console.WriteLine("Zamykam polaczenia...");
+                klient.Close();
+                serwer.Close();
+                
+            }
 
 
 
@@ -78,14 +87,10 @@ namespace SimpleServer
                 this.serwer = serwer;
             }
 
-            public void stworzklienta()
+            public Socket stworzklienta()
             {
-
-
-
                 Socket client = serwer.Accept();
-                do
-                {
+                
                                        
 
                     Console.WriteLine("Podlaczyl sie klient @ {0}", client.RemoteEndPoint);
@@ -97,27 +102,22 @@ namespace SimpleServer
                     do
                     {
 
+                         dataReceived = sr.ReadLine();
+                        Console.WriteLine(dataReceived);                      
 
-                        Console.WriteLine(dataReceived = string.Concat("otrzymano: ",sr.ReadLine()));                       
-
-                        string dataToSend = Console.ReadLine();                     
+                        string dataToSend = Console.ReadLine();                   
 
                         sw.WriteLine(dataToSend);
                         sw.Flush();
 
-
                     }
                     while (dataReceived != "QUIT");
-
-                    Console.WriteLine("Zamykam polaczenia...");
-                    // zamykanie polaczenia
+                
                     sw.Close();
                     sr.Close();
-                    client.Close();                  
+                    return client;   
 
-                }
-                while (true);
-                serwer.Close();
+               
             }
 
 
