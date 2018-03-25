@@ -29,11 +29,15 @@ namespace TCPSockets2
             // czy to sie kiedys wykona?
             Console.WriteLine("The server has been stopped. Hit [Enter]...");
             Console.ReadLine();
-        }
+           
+             }
 
         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
+            Console.WriteLine("Rozłączono wszystkich klientów");
             Console.WriteLine("Stopping the server...");
+            server.Closing();
+            Console.ReadKey();
             server.Stop();
             //Console.ReadLine();
             e.Cancel = true; // nie chcemy wymusic zamkniecia programu!

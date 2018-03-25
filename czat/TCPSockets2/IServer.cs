@@ -16,5 +16,6 @@ namespace TCPSockets2
     {
         void Start();
         void Stop();
+        void Closing();
     }
 }

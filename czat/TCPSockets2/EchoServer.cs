@@ -55,6 +55,10 @@ namespace TCPSockets2
         {
             listeningSocket.Close();
         }
+        public void Closing()
+        {
+            Console.WriteLine();
+        }
 
         // metoda obslugujaca polaczenie z jednym klientem
         public void ProcessCommunication(object socketAsObject)
