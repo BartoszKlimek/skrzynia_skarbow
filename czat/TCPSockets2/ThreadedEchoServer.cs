@@ -88,6 +88,7 @@ namespace TCPSockets2
                 {
                     login = tempLogin;
                     server.SendMessage("SERVER", string.Format("Witamy uzytkownika {0}", login));
+                    sw.WriteLine("aby zobaczyc dostepne opcje wpisz: /option");
                     do 
                     {
                         bool check = SocketIsConnected(socket);
@@ -96,7 +97,7 @@ namespace TCPSockets2
                         try
                         {
                                 message = sr.ReadLine();
-                                
+                                if (message == "/option") server.Option(login);
                             if (message=="/priv")
 
                             {
@@ -125,7 +126,7 @@ namespace TCPSockets2
                             else 
                             {
                                     if (message != string.Empty) Console.WriteLine(string.Format("Client @ {0} says: {1}", login, message));                              
-                                 if(message!=string.Empty) server.SendMessage(login, message);                       
+                                 if(message!=string.Empty && message!="/option") server.SendMessage(login, message);                       
                              
 
 
@@ -159,10 +160,9 @@ namespace TCPSockets2
                 else
                 {
                     sw.WriteLine("Ten login jest zajety, sprobuj ponownie.");
+                    ProcessCommunication();
                 }
 
-                Disconnect();
-                server.RemoveClient(this);
             }
 
 
@@ -304,7 +304,21 @@ namespace TCPSockets2
 
         }
 
-
+        public void Option(string from)
+        {
+            string message1 = "1. /priv + [ENTER] + wprowadzenie nazwy odbiorcy - rozmowa prywatna";
+            string message2 = "2. /stop - zakonczenie rozmowy prywatnej";
+            string message3 = "3. QUIT! wyjście z czatu";
+            foreach (ClientHelper item in activeClients)
+            {
+                if (item.Login == from)
+                {
+                    item.SendMessage(message1);
+                    item.SendMessage(message2);
+                    item.SendMessage(message3);
+                }
+            }
+        }
 
 
 
